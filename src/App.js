@@ -39,26 +39,30 @@ class App extends Component {
     });
   }
 
+  renderEmpty() {
+    return (
+      <div className="alert alert-primary" role="alert">
+        Hold on, alarm event is on the way!
+      </div>
+    )
+  }
+
+  renderRecords() {
+    return this.state.events.map((event, i) => {
+      return (
+        <Record
+          index={i}
+          key={event.event_id}
+          event={event}
+          onRead={this.onRead}
+        />
+      );
+    });
+  }
+
   render() {
-    let body;
-    if (this.state.events.length === 0) {
-      body = (
-        <div className="alert alert-primary" role="alert">
-          Hold on, alarm event is on the way!
-        </div>
-      )
-    } else {
-      body = this.state.events.map((event, i) => {
-        return (
-          <Record
-            index={i}
-            key={event.event_id}
-            event={event}
-            onRead={this.onRead}
-          />
-        );
-      })
-    }
+    const {length} = this.state.events;
+    const body = length === 0 ? this.renderEmpty() : this.renderRecords();
     return (
       <div className="App container">
         {body}
