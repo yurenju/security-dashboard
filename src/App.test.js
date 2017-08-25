@@ -20,7 +20,7 @@ it('renders event list if events exists', () => {
 
 it('set unread for certain event to false if onRead() is executed', () => {
   global.fetch = function() {
-    return new Promise((resolve, reject) => resolve());
+    return new Promise((resolve) => resolve());
   }
 
   const app = shallow(<App />);
