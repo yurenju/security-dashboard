@@ -9,38 +9,73 @@ function formatDate(timestamp) {
          `${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`;
 }
 
+
 class Record extends Component {
   constructor(props) {
     super(props);
 
     this.onClick = this.onClick.bind(this);
+    this.onPredictionClick = this.onPredictionClick.bind(this);
+
     this.state = {
-      expand: false
+      expand: false,
+      prediction: this.props.event.prediction
     };
   }
 
   onClick() {
     this.setState({expand: !this.state.expand});
+  }
 
-    if (this.props.event.unread) {
-      this.props.onRead(this.props.event.event_id, this.props.index);
-    }
+  onPredictionClick(evt) {
+    this.setState({
+      expand: !this.state.expand,
+      prediction: evt.target.textContent
+    });
+    this.props.onRead(this.props.event.event_id, this.props.index);
   }
 
   renderExpansion() {
     const { event } = this.props;
+    const predictions = ['people', 'car', 'animal', 'other'].map(p => {
+      const active = p === this.state.prediction ? 'active' : '';
+      const className = `btn btn-primary ${active}`;
+      return (
+        <button
+          key={p}
+          type="button"
+          className={className}
+          onClick={this.onPredictionClick}
+        >
+          {p}
+        </button>
+      );
+    });
 
     return (
       <div className="expansion">
         <div className="event-id">Event ID: {event.event_id}</div>
         <div className="camera-id">Camera ID: {event.camera_id}</div>
+        <div className="btn-group" role="group" aria-label="predictions">
+          {predictions}
+        </div>
+      </div>
+    );
+  }
+
+  renderSelectedPrediction() {
+    return (
+      <div className="prediction">
+        <button type="button" className="btn btn-outline-primary">
+          {this.state.prediction}
+        </button>
       </div>
     );
   }
 
   renderRecordBody(event) {
     const dateString = formatDate(event.starting_timestamp);
-    const expansion = this.state.expand ? this.renderExpansion() : null;
+    const content = this.state.expand ? this.renderExpansion() : this.renderSelectedPrediction();
 
     return (
       <div className="record-body row">
@@ -48,11 +83,8 @@ class Record extends Component {
           <img src={event.thumbnail} alt="Thumbnail" />
         </div>
         <div className="col-sm-10">
-          <h5 className="prediction">
-            Prediction: <span>{event.prediction}</span>
-          </h5>
           <div>Date: {dateString}</div>
-          {expansion}
+          {content}
         </div>
       </div>
     );
@@ -78,7 +110,7 @@ class Record extends Component {
 Record.propTypes = {
   event: PropTypes.object.isRequired,
   onRead: PropTypes.func.isRequired,
-  index: PropTypes.number.isRequired
+  index: PropTypes.number.isRequired,
 }
 
 export default Record;
